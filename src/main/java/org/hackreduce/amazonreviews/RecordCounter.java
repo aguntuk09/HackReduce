@@ -107,11 +107,6 @@ public class RecordCounter  extends org.hackreduce.examples.RecordCounter {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		int result = ToolRunner.run(new Configuration(), new HackRecordCounter(), args);
-		System.exit(result);
-	}
-
-	public static void main(String[] args) throws Exception {
 		int result = ToolRunner.run(new Configuration(), new RecordCounter(), args);
 		System.exit(result);
 	}
