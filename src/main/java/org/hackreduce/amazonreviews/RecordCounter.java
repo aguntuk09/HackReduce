@@ -2,9 +2,11 @@ package org.hackreduce.amazonreviews;
 
 import java.io.IOException;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.util.ToolRunner;
 import org.hackreduce.mappers.AmazonReviewMapper;
 import org.hackreduce.mappers.ModelMapper;
 import org.hackreduce.models.AmazonReviewRecord;
@@ -28,4 +30,8 @@ public class RecordCounter  extends org.hackreduce.examples.RecordCounter {
 		return RecordCounterMapper.class;
 	}
 
+	public static void main(String[] args) throws Exception {
+		int result = ToolRunner.run(new Configuration(), new RecordCounter(), args);
+		System.exit(result);
+	}
 }
