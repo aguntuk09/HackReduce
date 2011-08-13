@@ -31,7 +31,7 @@ public class AmazonReviewRecord {
 			}
 			setUsefulCount(Integer.parseInt(data[3]));
 			setTotalCount(Integer.parseInt(data[4]));
-			setRating(Float.parseFloat(data[5]));
+			setRating(Float.valueOf(data[5]));
 		}
 		catch (Exception e) {
 			LOG.log(Level.WARNING, e.getMessage(), e);
