@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import org.apache.hadoop.io.Text;
 
 public class AmazonReviewRecord {
-	private static SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("M d, yyyy");
+	private static SimpleDateFormat SIMPLE_DATE_FORMAT = new SimpleDateFormat("MMMMM d, yyyy");
 	Logger LOG = Logger.getLogger(AmazonReviewRecord.class.getName());
 
 	private String productID;
