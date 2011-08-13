@@ -3,7 +3,6 @@ package org.hackreduce.models;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.hadoop.io.Text;
@@ -34,8 +33,8 @@ public class AmazonReviewRecord {
 			setRating(Float.valueOf(data[5]));
 		}
 		catch (Exception e) {
-			LOG.log(Level.WARNING, e.getMessage(), e);
-			throw new IllegalArgumentException("Couldn't create a " + getClass().getName() + " record from the given text");
+			setProductID("-1");
+			setReviewDate(null);
 		}
 	}
 

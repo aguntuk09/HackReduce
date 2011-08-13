@@ -4,10 +4,6 @@ import java.io.IOException;
 import java.util.Calendar;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.FloatWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.util.ToolRunner;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
@@ -18,7 +14,6 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.ToolRunner;
-import org.hackreduce.examples.ngram.two_gram.HackRecordCounter;
 import org.hackreduce.mappers.AmazonReviewMapper;
 import org.hackreduce.mappers.ModelMapper;
 import org.hackreduce.models.AmazonReviewRecord;
@@ -30,9 +25,11 @@ public class RecordCounter  extends org.hackreduce.examples.RecordCounter {
 
 		@Override
 		protected void map(AmazonReviewRecord record, Context context) throws IOException, InterruptedException {
-			cal.setTime(record.getReviewDate());
-			context.write(new Text(Integer.toString(cal.get(Calendar.DAY_OF_YEAR)))
-				, new FloatWritable( record.getRating() ));
+			if (record.getReviewDate() != null) {
+				cal.setTime(record.getReviewDate());
+				context.write(new Text(Integer.toString(cal.get(Calendar.DAY_OF_YEAR)))
+					, new FloatWritable( record.getRating() ));
+			}
 		}
 		
 	};
