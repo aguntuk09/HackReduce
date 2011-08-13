@@ -17,6 +17,7 @@ public class AmazonReviewRecord {
 	private int usefulCount;
 	private int totalCount;
 	private float rating;
+	private String text;
 	
 	public AmazonReviewRecord(String line) {
 		try {
@@ -31,6 +32,7 @@ public class AmazonReviewRecord {
 			setUsefulCount(Integer.parseInt(data[3]));
 			setTotalCount(Integer.parseInt(data[4]));
 			setRating(Float.valueOf(data[5]));
+			setText(data[6]);
 		}
 		catch (Exception e) {
 			setProductID("-1");
@@ -76,6 +78,12 @@ public class AmazonReviewRecord {
 	}
 	public void setRating(float rating) {
 		this.rating = rating;
+	}
+	public String getText() {
+		return text;
+	}
+	public void setText(String text) {
+		this.text = text;
 	}
 	
 }
