@@ -3,6 +3,7 @@ package org.hackreduce.amazonreviews;
 import java.io.IOException;
 import java.util.Calendar;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
