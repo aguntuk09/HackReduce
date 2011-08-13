@@ -36,15 +36,21 @@ function chr(c)
 }
 
 1900 <= $2 && $2 <= 2000 {
-	#print $1, $2, $3
 	data[$1, $2] += $3
 }
 
 END {
-	for (letter = "A"; letter != "Z"; letter = chr(ord(letter) + 1)) {
-		for (year = 1900; year <= 2000; ++year) {
-			print letter, year, data[letter, year]
+	for (year = 1900; year <= 2000; ++year) {
+		printf("%d ", year)
+		for (letter = "A"; letter <= "Z"; letter = chr(ord(letter) + 1)) {
+			printf("%d ", data[letter, year])
 		}
+		print ""
 	}
+#	for (letter = "A"; letter <= "Z"; letter = chr(ord(letter) + 1)) {
+#		for (year = 1900; year <= 2000; ++year) {
+#			print letter, year, data[letter, year]
+#		}
+#	}
 }
 
