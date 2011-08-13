@@ -1,0 +1,3 @@
+#!/bin/sh
+
+ssh -i ~/.ssh/hackreduce.pem hadoop@hackreduce-cluster-2.hopper.to
