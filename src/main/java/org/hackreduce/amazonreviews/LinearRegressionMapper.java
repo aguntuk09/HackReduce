@@ -1,14 +1,15 @@
 package org.hackreduce.amazonreviews;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DoubleWritable;
-import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -19,36 +20,75 @@ import org.hackreduce.mappers.AmazonReviewMapper;
 import org.hackreduce.mappers.ModelMapper;
 import org.hackreduce.models.AmazonReviewRecord;
 
-public class RecordCounter  extends org.hackreduce.examples.RecordCounter {
-	public static class RecordCounterMapper extends AmazonReviewMapper<Text, FloatWritable> {
+public class LinearRegressionMapper  extends org.hackreduce.examples.RecordCounter {
+	
+	public static class RecordCounterMapper extends AmazonReviewMapper<Text, ReviewTuple> {
 
 		private static Calendar cal = Calendar.getInstance();
 
 		@Override
 		protected void map(AmazonReviewRecord record, Context context) throws IOException, InterruptedException {
-			if (record.getReviewDate() != null) {
+			if (record.getReviewDate() != null) 
+			{
 				cal.setTime(record.getReviewDate());
-				context.write(new Text(new SimpleDateFormat("MM.dd").format(cal.getTime()))
-					, new FloatWritable( record.getRating() ));
+				context.write(new Text(record.getReviewID())
+					, /*new ObjectWritable(*/ new ReviewTuple(record.getReviewDate().getTime(),
+							record.getRating()
+							) /*)*/);
 			}
 		}
 		
 	};
 	
-	public static class RatingAverageReducer extends Reducer<Text, FloatWritable, Text, DoubleWritable> {
+	public static class Struct implements Comparable<Struct> {
+		public long date;
+		public float rating;
+		
+		public Struct(long date, float rating) {
+			this.date = date;
+			this.rating = rating;
+		}
 
 		@Override
-		protected void reduce(Text key, Iterable<FloatWritable> values, Context context) throws IOException, InterruptedException {
+		public int compareTo(Struct o) {
+			return Long.valueOf(date).compareTo(o.date);
+		}
+	}
+	
+	public static class RatingAverageReducer extends Reducer<Text, ReviewTuple, Text, DoubleWritable> {
 
-			long count = 0;
-			double total = 0.0;
-			for(FloatWritable rating : values) {
-				total += rating.get();
-				count++;
+		@Override
+		protected void reduce(Text key, Iterable<ReviewTuple> values, Context context) throws IOException, InterruptedException {
+
+			List<Struct> reviewTuples = new ArrayList<Struct>();
+
+			for(ReviewTuple tuple : values) {
+				reviewTuples.add(new Struct(
+						tuple.getDate(), tuple.getRating()
+						));
 			}
-			double average = total / count; 
-
-			context.write(key, new DoubleWritable(average));
+//			System.out.println(reviewTuples);
+			Collections.sort(reviewTuples);
+			double [] x = new double[reviewTuples.size()];
+			double [] y = new double[reviewTuples.size()];
+			
+		    // first pass: read in data, compute xbar and ybar
+			int n = 0;
+			for(Struct struct : reviewTuples) {
+				x[n] = struct.date;
+				y[n] = struct.rating;
+//				System.out.println(x[n]);
+//				System.out.println(y[n]);
+	            n++;
+			}
+			
+//			System.out.println(x);
+//			System.out.println(y);
+			
+			LinearRegression lreg = new LinearRegression(x, y);
+//			System.out.println( lreg.getModel() ); 
+			
+			context.write(key, new DoubleWritable(lreg.getSlope()));
 		}
 
 	}
@@ -86,7 +126,7 @@ public class RecordCounter  extends org.hackreduce.examples.RecordCounter {
 
 		// This is what the Mapper will be outputting to the Reducer
 		job.setMapOutputKeyClass(Text.class);
-		job.setMapOutputValueClass(FloatWritable.class);
+		job.setMapOutputValueClass(ReviewTuple.class);
 
 		// This is what the Reducer will be outputting
 		job.setOutputKeyClass(Text.class);
@@ -104,7 +144,7 @@ public class RecordCounter  extends org.hackreduce.examples.RecordCounter {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		int result = ToolRunner.run(new Configuration(), new RecordCounter(), args);
+		int result = ToolRunner.run(new Configuration(), new LinearRegressionMapper(), args);
 		System.exit(result);
 	}
 }
